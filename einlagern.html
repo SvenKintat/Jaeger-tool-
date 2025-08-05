@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Einlagern</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background-color: #2e5339;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 2em;
+    }
+    select, input, button {
+      display: block;
+      margin: 1em 0;
+      padding: 0.6em;
+      width: 100%;
+      max-width: 400px;
+    }
+    .nav, #logout {
+      margin-top: 2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wild einlagern</h1>
+
+  <label>Wildart:</label>
+  <select id="wildart">
+    <option>Schwarzwild</option>
+    <option>Rehwild</option>
+    <option>Damwild</option>
+  </select>
+
+  <label>Teilstück:</label>
+  <select id="teilstueck">
+    <option>Nacken</option>
+    <option>Hackfleisch</option>
+    <option>Gulasch</option>
+    <option>Keule</option>
+    <option>Blatt</option>
+  </select>
+
+  <label>Menge (z. B. 1.5):</label>
+  <input type="number" id="menge" step="0.01" />
+
+  <label>Einheit (kg, g):</label>
+  <input type="text" id="einheit" placeholder="kg oder g" />
+
+  <label>Lagerort:</label>
+  <input type="text" id="lagerort" placeholder="z. B. TK1" />
+
+  <label>Datum:</label>
+  <input type="date" id="datum" />
+
+  <button id="einlagern">Einlagern</button>
+
+  <div class="nav">
+    <a href="index.html">Zurück zum Menü</a>
+    <button id="logout">Abmelden</button>
+  </div>
+
+  <div id="message"></div>
+
+  <script>
+    const supabase = supabase.createClient(
+      "https://jdeostlfpeckgsljzwzi.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM"
+    );
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) window.location.href = "login.html";
+    });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    });
+
+    document.getElementById("einlagern").addEventListener("click", async () => {
+      const wildart = document.getElementById("wildart").value;
+      const teilstueck = document.getElementById("teilstueck").value;
+      const menge = parseFloat(document.getElementById("menge").value);
+      const einheit = document.getElementById("einheit").value;
+      const lagerort = document.getElementById("lagerort").value;
+      const datum = document.getElementById("datum").value;
+
+      const { error } = await supabase.from("bestandsdaten").insert([
+        { wildart, teilstueck, menge, einheit, lagerort, datum }
+      ]);
+
+      if (error) {
+        document.getElementById("message").innerText = "Fehler: " + error.message;
+      } else {
+        document.getElementById("message").innerText = "Einlagerung erfolgreich!";
+      }
+    });
+  </script>
+</body>
+</html>

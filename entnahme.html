@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Entnahme</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background-color: #2e5339;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 2em;
+    }
+    select, button {
+      display: block;
+      margin: 1em 0;
+      padding: 0.6em;
+      width: 100%;
+      max-width: 400px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wild entnehmen</h1>
+  <label>Teilstück auswählen:</label>
+  <select id="eintragSelect"></select>
+
+  <button id="entnehmen">Entnahme durchführen</button>
+  <a href="index.html">Zurück zum Menü</a>
+  <button id="logout">Abmelden</button>
+  <div id="message"></div>
+
+  <script>
+    const supabase = supabase.createClient(
+      "https://jdeostlfpeckgsljzwzi.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM"
+    );
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) window.location.href = "login.html";
+
+      const { data } = await supabase.from("bestandsdaten").select("*").gt("menge", 0);
+      const select = document.getElementById("eintragSelect");
+      data.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.id;
+        option.text = `${item.wildart} – ${item.teilstueck} (${item.menge} ${item.einheit})`;
+        select.appendChild(option);
+      });
+    });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    });
+
+    document.getElementById("entnehmen").addEventListener("click", async () => {
+      const id = document.getElementById("eintragSelect").value;
+      const { data, error } = await supabase.from("bestandsdaten")
+        .update({ menge: 0 })
+        .eq("id", id);
+
+      if (error) {
+        document.getElementById("message").innerText = "Fehler: " + error.message;
+      } else {
+        document.getElementById("message").innerText = "Entnahme erfolgreich!";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login – Wildbestand</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background: #2e5339;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 2em;
+    }
+    .form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.8em;
+      margin-top: 1em;
+      border: none;
+      border-radius: 4px;
+    }
+    button {
+      background: #6a462f;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="form">
+    <h1>Login</h1>
+    <input type="email" id="email" placeholder="E-Mail" />
+    <input type="password" id="password" placeholder="Passwort" />
+    <button id="login">Einloggen</button>
+    <p>Noch kein Konto? <a href="register.html" style="color:#fff;">Registrieren</a></p>
+    <div id="error" style="color: #ffb3b3;"></div>
+  </div>
+
+  <script>
+    const supabase = supabase.createClient(
+      "https://jdeostlfpeckgsljzwzi.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM"
+    );
+
+    document.getElementById("login").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        document.getElementById("error").innerText = error.message;
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+</body>
+</html>

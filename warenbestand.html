@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Warenbestand</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background-color: #2e5339;
+      color: white;
+      font-family: sans-serif;
+      padding: 2em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1em;
+    }
+    th, td {
+      padding: 0.8em;
+      border: 1px solid #fff;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <h1>Warenbestand</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Wildart</th>
+        <th>Teilstück</th>
+        <th>Menge</th>
+        <th>Einheit</th>
+      </tr>
+    </thead>
+    <tbody id="stockTable"></tbody>
+  </table>
+
+  <a href="index.html">Zurück zum Menü</a>
+  <button id="logout">Abmelden</button>
+
+  <script>
+    const supabase = supabase.createClient(
+      "https://jdeostlfpeckgsljzwzi.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM"
+    );
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) window.location.href = "login.html";
+
+      const { data } = await supabase.from("bestandsdaten").select("*").gt("menge", 0);
+      const table = document.getElementById("stockTable");
+
+      data.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${item.wildart}</td><td>${item.teilstueck}</td><td>${item.menge}</td><td>${item.einheit}</td>`;
+        table.appendChild(row);
+      });
+    });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

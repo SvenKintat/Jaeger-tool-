@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wildbestand – Menü</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      background: #2e5339;
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+      padding-top: 10vh;
+    }
+    h1 {
+      margin-bottom: 2em;
+    }
+    a.button {
+      display: inline-block;
+      margin: 1em;
+      padding: 1em 2em;
+      background-color: #6a462f;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 1.2em;
+    }
+    #logout {
+      margin-top: 3em;
+      background: none;
+      color: #ccc;
+      cursor: pointer;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Was möchtest du tun?</h1>
+  <a class="button" href="einlagern.html">Einlagern</a>
+  <a class="button" href="entnahme.html">Entnahme</a>
+  <a class="button" href="warenbestand.html">Warenbestand</a>
+  <br />
+  <button id="logout">Abmelden</button>
+
+  <script>
+    const supabase = supabase.createClient(
+      "https://jdeostlfpeckgsljzwzi.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM"
+    );
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = "login.html";
+      }
+    });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
