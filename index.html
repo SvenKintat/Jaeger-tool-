@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wildfleisch Warenbestand</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 1em;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        h2 {
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+        .form-section {
+            margin-bottom: 1em;
+            padding: 1em;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .form-section label {
+            display: block;
+            margin-top: 0.5em;
+        }
+        .form-section select,
+        .form-section input {
+            width: 100%;
+            padding: 0.5em;
+            margin-top: 0.2em;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 1em;
+            padding: 0.5em 1em;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        #bestand {
+            margin-top: 2em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.5em;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+    </style>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<h1>Wildfleisch Warenbestand</h1>
+
+<div class="form-section">
+    <h2>Einlagerung</h2>
+    <label for="wildart_e">Wildart</label>
+    <select id="wildart_e">
+        <option value="Schwarzwild">Schwarzwild</option>
+        <option value="Rehwild">Rehwild</option>
+        <option value="Damwild">Damwild</option>
+    </select>
+
+    <label for="teil_e">Teilstück</label>
+    <select id="teil_e">
+        <option value="Nacken">Nacken</option>
+        <option value="Hackfleisch">Hackfleisch</option>
+        <option value="Gulasch">Gulasch</option>
+        <option value="Keule">Keule</option>
+        <option value="Blatt">Blatt</option>
+    </select>
+
+    <label for="menge_e">Menge (z. B. 1.5)</label>
+    <input type="number" step="0.01" id="menge_e">
+
+    <label for="einheit_e">Einheit</label>
+    <select id="einheit_e">
+        <option value="kg">kg</option>
+        <option value="Portionen">Portionen</option>
+    </select>
+
+    <label for="lagerort_e">Lagerort</label>
+    <input type="text" id="lagerort_e" placeholder="z. B. TK1">
+
+    <label for="datum_e">Datum</label>
+    <input type="date" id="datum_e">
+
+    <button id="btn_e">Einlagern</button>
+</div>
+
+<div class="form-section">
+    <h2>Entnahme</h2>
+    <label for="wildart_a">Wildart</label>
+    <select id="wildart_a">
+        <option value="Schwarzwild">Schwarzwild</option>
+        <option value="Rehwild">Rehwild</option>
+        <option value="Damwild">Damwild</option>
+    </select>
+
+    <label for="teil_a">Teilstück</label>
+    <select id="teil_a">
+        <option value="Nacken">Nacken</option>
+        <option value="Hackfleisch">Hackfleisch</option>
+        <option value="Gulasch">Gulasch</option>
+        <option value="Keule">Keule</option>
+        <option value="Blatt">Blatt</option>
+    </select>
+
+    <label for="menge_a">Menge (z. B. 1.5)</label>
+    <input type="number" step="0.01" id="menge_a">
+
+    <label for="einheit_a">Einheit</label>
+    <select id="einheit_a">
+        <option value="kg">kg</option>
+        <option value="Portionen">Portionen</option>
+    </select>
+
+    <label for="lagerort_a">Lagerort</label>
+    <input type="text" id="lagerort_a" placeholder="z. B. TK1">
+
+    <label for="datum_a">Datum</label>
+    <input type="date" id="datum_a">
+
+    <label for="verwendung_a">Verwendungszweck</label>
+    <input type="text" id="verwendung_a" placeholder="z. B. Eigenbedarf">
+
+    <button id="btn_a">Entnahme</button>
+</div>
+
+<div id="bestand">
+    <h2>Bestand</h2>
+    <table id="bestand_table">
+        <thead>
+        <tr>
+            <th>Wildart</th>
+            <th>Teilstück</th>
+            <th>Menge</th>
+            <th>Einheit</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+const supabaseUrl = 'https://jdeostlfpeckgsljzwzi.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM';
+const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+// Set today's date by default
+document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('datum_e').value = today;
+    document.getElementById('datum_a').value = today;
+    loadStock();
+});
+
+// Einlagerung speichern
+document.getElementById('btn_e').addEventListener('click', async () => {
+    const wildart = document.getElementById('wildart_e').value;
+    const teil = document.getElementById('teil_e').value;
+    const menge = parseFloat(document.getElementById('menge_e').value);
+    const einheit = document.getElementById('einheit_e').value;
+    const lagerort = document.getElementById('lagerort_e').value;
+    const datum = document.getElementById('datum_e').value;
+    if (!menge || menge <= 0) {
+        alert('Bitte eine gültige Menge eingeben.');
+        return;
+    }
+    const { error } = await supabase.from('bestandsdaten').insert({
+        wildart: wildart,
+        teil: teil,
+        menge: menge,
+        einheit: einheit,
+        typ: 'Einlagerung',
+        datum: datum,
+        lagerort: lagerort
+    });
+    if (error) {
+        alert('Fehler bei der Einlagerung: ' + error.message);
+    } else {
+        alert('Einlagerung gespeichert.');
+        document.getElementById('menge_e').value = '';
+        loadStock();
+    }
+});
+
+// Entnahme speichern
+document.getElementById('btn_a').addEventListener('click', async () => {
+    const wildart = document.getElementById('wildart_a').value;
+    const teil = document.getElementById('teil_a').value;
+    const menge = parseFloat(document.getElementById('menge_a').value);
+    const einheit = document.getElementById('einheit_a').value;
+    const lagerort = document.getElementById('lagerort_a').value;
+    const datum = document.getElementById('datum_a').value;
+    const verwendung = document.getElementById('verwendung_a').value;
+    if (!menge || menge <= 0) {
+        alert('Bitte eine gültige Menge eingeben.');
+        return;
+    }
+    const { error } = await supabase.from('bestandsdaten').insert({
+        wildart: wildart,
+        teil: teil,
+        menge: menge,
+        einheit: einheit,
+        typ: 'Entnahme',
+        datum: datum,
+        lagerort: lagerort,
+        verwendungszweck: verwendung
+    });
+    if (error) {
+        alert('Fehler bei der Entnahme: ' + error.message);
+    } else {
+        alert('Entnahme gespeichert.');
+        document.getElementById('menge_a').value = '';
+        document.getElementById('verwendung_a').value = '';
+        loadStock();
+    }
+});
+
+// Bestand laden und anzeigen
+async function loadStock() {
+    const { data, error } = await supabase.from('bestandsdaten').select('*');
+    if (error) {
+        console.error('Fehler beim Laden der Daten:', error);
+        return;
+    }
+    // Summen berechnen
+    const totals = {};
+    data.forEach(item => {
+        const key = item.wildart + '_' + item.teil;
+        if (!totals[key]) {
+            totals[key] = { wildart: item.wildart, teil: item.teil, menge: 0, einheit: item.einheit };
+        }
+        if (item.typ === 'Einlagerung') {
+            totals[key].menge += item.menge;
+        } else if (item.typ === 'Entnahme') {
+            totals[key].menge -= item.menge;
+        }
+    });
+    // Tabelle aktualisieren
+    const tbody = document.querySelector('#bestand_table tbody');
+    tbody.innerHTML = '';
+    Object.values(totals).forEach(item => {
+        if (item.menge > 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + item.wildart + '</td>' +
+                '<td>' + item.teil + '</td>' +
+                '<td>' + item.menge.toFixed(2) + '</td>' +
+                '<td>' + item.einheit + '</td>';
+            tbody.appendChild(tr);
+        }
+    });
+}
+</script>
+
+</body>
+</html>
