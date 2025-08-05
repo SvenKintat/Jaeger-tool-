@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wildfleisch Warenbestand – Entnahme</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 1em;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #2e5339, #1c2a20);
+            color: #fdfdfd;
+            position: relative;
+            overflow-x: hidden;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+        }
+        .form-section {
+            margin-bottom: 1.5em;
+            padding: 1em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-section label {
+            display: block;
+            margin-top: 0.5em;
+            font-size: 1.05em;
+        }
+        .form-section select {
+            width: 100%;
+            padding: 0.55em;
+            margin-top: 0.25em;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fdfdfd;
+            font-size: 1.05em;
+        }
+        .info-display {
+            margin-top: 0.75em;
+            font-size: 1.05em;
+            color: #d6d6d6;
+        }
+        button {
+            margin-top: 1em;
+            padding: 0.6em 1.2em;
+            font-size: 1.05em;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #6a462f;
+            color: #fff;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #845632;
+        }
+        .nav {
+            text-align: center;
+            margin-top: 2em;
+        }
+        .nav a {
+            color: #ffffff;
+            text-decoration: underline;
+            font-size: 1em;
+        }
+    </style>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Entnahme</h1>
+    <div class="form-section">
+        <label for="stock_item">Verfügbarer Bestand</label>
+        <select id="stock_item"></select>
+        <div class="info-display" id="info_display"></div>
+        <button id="btn_a">Entnahme ausführen</button>
+    </div>
+    <div class="nav">
+        <a href="index.html">Zurück zum Menü</a>
+    </div>
+    <script>
+    const supabaseUrl = 'https://jdeostlfpeckgsljzwzi.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM';
+    const { createClient } = supabase;
+    const db = createClient(supabaseUrl, supabaseAnonKey);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadStockItems();
+    });
+
+    // Bestandsdaten laden und Dropdown befüllen
+    async function loadStockItems() {
+        const selectElement = document.getElementById('stock_item');
+        const infoDisplay   = document.getElementById('info_display');
+        selectElement.innerHTML = '';
+        infoDisplay.textContent = '';
+
+        const { data, error } = await db.from('bestandsdaten').select('*');
+        if (error) {
+            console.error('Fehler beim Laden der Daten:', error);
+            return;
+        }
+        // Aggregiere nach Wildart + Teil
+        const totals = {};
+        data.forEach(item => {
+            const key = item.wildart + '_' + item.teil;
+            if (!totals[key]) {
+                totals[key] = { wildart: item.wildart, teil: item.teil, menge: 0, einheit: item.einheit };
+            }
+            totals[key].einheit = item.einheit;
+            if (item.typ === 'Einlagerung') {
+                totals[key].menge += item.menge;
+            } else if (item.typ === 'Entnahme') {
+                totals[key].menge -= item.menge;
+            }
+        });
+        // Dropdown befüllen
+        Object.values(totals).forEach(item => {
+            if (item.menge > 0) {
+                const option = document.createElement('option');
+                option.value = `${item.wildart}|${item.teil}`;
+                option.setAttribute('data-wildart', item.wildart);
+                option.setAttribute('data-teil', item.teil);
+                option.setAttribute('data-einheit', item.einheit);
+                option.setAttribute('data-menge', item.menge.toFixed(2));
+                option.textContent = `${item.wildart} – ${item.teil} (${item.menge.toFixed(2)} ${item.einheit})`;
+                selectElement.appendChild(option);
+            }
+        });
+        // Hinweistext für die ausgewählte Option aktualisieren
+        function updateInfo() {
+            if (selectElement.options.length === 0) {
+                infoDisplay.textContent = '';
+                return;
+            }
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const menge   = selectedOption.getAttribute('data-menge');
+            const einheit = selectedOption.getAttribute('data-einheit');
+            infoDisplay.textContent = `Zur Entnahme stehen ${menge} ${einheit} bereit.`;
+        }
+        selectElement.addEventListener('change', updateInfo);
+        updateInfo();
+    }
+
+    // Entnahme ausführen (gesamte Menge des ausgewählten Teilstücks)
+    document.getElementById('btn_a').addEventListener('click', async () => {
+        const selectElement = document.getElementById('stock_item');
+        if (selectElement.options.length === 0) {
+            alert('Es sind keine Bestände vorhanden.');
+            return;
+        }
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const wildart = selectedOption.getAttribute('data-wildart');
+        const teil    = selectedOption.getAttribute('data-teil');
+        const einheit = selectedOption.getAttribute('data-einheit');
+        const menge   = parseFloat(selectedOption.getAttribute('data-menge'));
+        const datum   = new Date().toISOString().split('T')[0];
+
+        // Neue Entnahme als eigener Datensatz speichern
+        const { error } = await db.from('bestandsdaten').insert({
+            wildart,
+            teil,
+            menge,
+            einheit,
+            typ: 'Entnahme',
+            datum,
+            lagerort: '',           // leer, da nicht mehr benötigt
+            verwendungszweck: ''    // leer, da entfernt
+        });
+
+        if (error) {
+            alert('Fehler bei der Entnahme: ' + (error.message || error.code || JSON.stringify(error)));
+        } else {
+            alert('Entnahme gespeichert. Die gesamte Menge wurde ausgebucht.');
+            // Liste neu laden, um den aktualisierten Bestand zu sehen
+            loadStockItems();
+        }
+    });
+    </script>
+</body>
+</html>

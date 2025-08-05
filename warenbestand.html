@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wildfleisch Warenbestand – Übersicht</title>
+    <style>
+        /* Jagdliches Farbschema mit dunklem Hintergrund und heller Typografie */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 1em;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #2e5339, #1c2a20);
+            color: #fdfdfd;
+            position: relative;
+            overflow-x: hidden;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+        }
+        .table-container {
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.6em;
+            text-align: left;
+            color: #fff;
+            font-size: 1.05em;
+        }
+        th {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        tbody tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .nav {
+            text-align: center;
+            margin-top: 2em;
+        }
+        .nav a {
+            color: #ffffff;
+            text-decoration: underline;
+            font-size: 1em;
+        }
+    </style>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Warenbestand</h1>
+    <div class="table-container">
+        <table id="bestand_table">
+            <thead>
+            <tr>
+                <th>Wildart</th>
+                <th>Teilstück</th>
+                <th>Menge</th>
+                <th>Einheit</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="nav">
+        <a href="index.html">Zurück zum Menü</a>
+    </div>
+    <script>
+    const supabaseUrl = 'https://jdeostlfpeckgsljzwzi.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM';
+    const { createClient } = supabase;
+    const db = createClient(supabaseUrl, supabaseAnonKey);
+    // Laden und Anzeigen des Bestands
+    async function loadStock() {
+        const { data, error } = await db.from('bestandsdaten').select('*');
+        if (error) {
+            console.error('Fehler beim Laden der Daten:', error);
+            return;
+        }
+        const totals = {};
+        data.forEach(item => {
+            const key = item.wildart + '_' + item.teil;
+            if (!totals[key]) {
+                totals[key] = { wildart: item.wildart, teil: item.teil, menge: 0, einheit: item.einheit };
+            }
+            if (item.typ === 'Einlagerung') {
+                totals[key].menge += item.menge;
+            } else if (item.typ === 'Entnahme') {
+                totals[key].menge -= item.menge;
+            }
+        });
+        const tbody = document.querySelector('#bestand_table tbody');
+        tbody.innerHTML = '';
+        Object.values(totals).forEach(item => {
+            if (item.menge > 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + item.wildart + '</td>' +
+                    '<td>' + item.teil + '</td>' +
+                    '<td>' + item.menge.toFixed(2) + '</td>' +
+                    '<td>' + item.einheit + '</td>';
+                tbody.appendChild(tr);
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', loadStock);
+    </script>
+</body>
+</html>
