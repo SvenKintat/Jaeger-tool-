@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wildfleisch Warenbestand</title>
+    <style>
+        /*
+         * Modern jagdliches Design: Dunkler Waldhintergrund mit heller Typografie
+         * und semi‑transparente Karten für die Formulare. Ein großes, sehr
+         * transparentes Wildtier (Reh) wird im Hintergrund über die gesamte
+         * Seite gelegt. Dadurch bleibt die Seite lesbar und vermittelt
+         * gleichzeitig einen jagdlichen Charakter.
+         */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 1em;
+            min-height: 100vh;
+            /* Waldgrüner Farbverlauf */
+            background: linear-gradient(to bottom, #2e5339, #1c2a20);
+            color: #fdfdfd;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Großes Hintergrundmotiv (Reh) mit niedriger Deckkraft */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyBpZD0iZW1vamkiIHZpZXdCb3g9IjAgMCA3MiA3MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZyBpZD0iY29sb3IiPgogICAgPHBhdGggZmlsbD0iI0ZGRkZGRiIgc3Ryb2tlPSJub25lIiBkPSJNNTUuMDI1MiwzMS4wODU1bDEuMjI5Miw5LjkxNjdjMCwwLTEsNi43NSw0LjY2NjcsMy44MzMzbC0xLjY2NjctMy4xNjY3bDEuMDgzMy00LjU4MzNsLTAuOTE2Ny00LjE2NjcgTDU1LjAyNTIsMzEuMDg1NXoiLz4KICAgIDxwYXRoIGZpbGw9IiNBNTc5MzkiIHN0cm9rZT0ibm9uZSIgZD0iTTE3LjcxMjcsMjAuMzk4bC0xMC4zNzUsNS42MjVsMC42MjUsMi4xODc1YzAsMCw2LjYyNSwwLjMxMjUsNy4yNSwxLjY4NzVzLTIuMzc1LDEzLjgxMjUsMTAuODc1LDE4LjQzNzUgbDMuMzc1LDE1LjI1YzAsMC0xLjc1LDQuNTYyNS0xLjU2MjUsNC40Mzc1czIuODc1LTAuMDYyNSwyLjg3NS0wLjA2MjVsMS44NzUtNS41NjI1bC0wLjI1LTcuODEyNWwtMC41LTVsNC4zMTI1LDAuMzEyNSBsNy4yNS0xLjA2MjVsNC4zMTI1LTAuMTg3NWwyLjc1LDQuMzc1bC0yLjkzNzUsMTAuODEyNWwtMi42ODc1LDQuMTI1aDMuODc1bDUuNS0xMC4wNjI1bDEuMjUtMy43NWwtMS43NS03LjE4NzVsMy4zMTI1LTkuODEyNSBjMCwwLDAuMzEyNS0zLjU2MjUtMi4wNjI1LTYuMDYyNXMtMTMuMjUsMC41LTEzLjI1LDAuNUwzMC4yMTI3LDMwLjE0OGwtNC4zMTI1LDAuMzEyNWwtMS40Mzc1LTIuNWwtMC42ODc1LTIuODEyNSBjMCwwLDMtMC4xMjUsMy4xODc1LTMuMTg3NWMwLDAtMy4zNzUtMi43NS02LjUtMC4xODc1QzIwLjQ2MjcsMjEuNzczLDE3Ljk2MjcsMTkuNzEwNSwxNy43MTI3LDIwLjM5OHoiLz4KICAgIDxwb2x5Z29uIGZpbGw9IiM2QTQ2MkYiIHN0cm9rZT0ibm9uZSIgcG9pbnRzPSIyMC45MjEsNDUuNTg1NSAyMi4wODc3LDUxLjMzNTUgMjMuODM3Nyw2Mi40MTg4IDIxLjkyMSw2Ny44MzU1IDI0LjgzNzcsNjcuODM1NSAyNy40MjEsNjIuMTY4OCAyNy4zMzc3LDUzLjUwMjEgMjYuMDg3Nyw0OC4zMzU1Ii8+CiAgPC9nPgogIDxnIGlkPSJoYWlyIi8+CiAgPGcgaWQ9InNraW4iLz4KICA8ZyBpZD0ic2tpbi1zaGFkb3ciLz4KICA8ZyBpZD0ibGluZSI+CiAgICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yOC4xNjg1LDY3LjAyMDhsMS4xNzg4LTMuNDUyN0wyNS45MTgxLDQ4LjEwN2MtMTIuMzIzNS0zLjg1NzgtMTAuMzkyNy0xNy42ODYxLTEwLjM5MjctMTcuNjg2MSBjLTAuMTkyMS0xLjc2NTUtMy4zMjM4LTEuODE3MS0zLjMyMzgtMS44MTcxbC0yLjY0OTksMC4yMTI2Yy0wLjgwMDUsMC4wNjQyLTEuNTQ0LTAuNDE4Mi0xLjgxMTYtMS4xNzUzbC0wLjIxMDMtMC41OTUgYy0wLjI2OTYtMC43NjI5LDAuMDcxMy0xLjYwNzIsMC43OTUtMS45NjlsOS4wMjA1LTQuNTEwMmMwLDAsMi4yMTcyLTAuODU2MywzLjE2OCwxLjUxODdjMCwwLDEuMTE4NC0yLjY5NzUsNi40NzY0LTAuNTU0MiBjMCwwLTAuNDI4Niw0LjA3MjEtNS4xNDM3LDQuMDcyMSIvPgogICAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMzMuMDI2MywzOS43NDg1bDAuNTM1OCw1LjY3OTVjMCwwLTMuMDAwNSwzLjAxODgtMi4xNDMyLDkuMDY0MiIvPgogICAgPHBvbHlsaW5lIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS13aWR0aD0iMiIgcG9pbnRzPSIyMy4wOTY0LDUxLjE4MzggMjQuMDYwOCw2Mi42NjI4IDIyLjIzOTEsNjYuODQyMSIvPgogICAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMjMuNzgzNywyOC42NTU0YzAsMCwwLjY3MSwzLjIyNjgsNC44NzY4LDEuODY0OWMwLjk1NTQtMC4zMDk0LDEuOTgzOC0wLjI5NjQsMi45NjA4LTAuMDY0IGMyLjQ1NDEsMC41ODM5LDEwLjA2MDUsMS40NDEzLDEzLjg3MjksMC43ODNjMC41NjE0LTAuMDk2OSwxLjEwNjYtMC4yNTUzLDEuNjM3LTAuNDYzMWMxLjU1OTItMC42MTA4LDYuNzE3My0yLjEwODUsMTEuNzA3LDIuMzA4MyBjMi4wMDM0LDEuNzczMywxLjc4NzksNC43NTEsMS4wMzAxLDcuMjI4M0M1OS44NTgxLDQwLjM0NjQsNTksNDMuMDIzLDYwLjQxMjEsNDQuMDg1NSIvPgogICAgPHBvbHlsaW5lIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS13aWR0aD0iMiIgcG9pbnRzPSI0Ny42MzU2LDM3LjM5MSA0Ni43Nzg0LDQ2LjU4NDIgNTAuODUwNSw1My4yNTA1IDQ3LjQ2NzgsNjMuODkxNCA0NS4xMTc0LDY3LjAyMDgiLz4KICAgIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTU2LjEyNSwzNy4zOTFjMCwwLDAuOTcxNiw0Ljk5NS0yLjA3NzgsOS43Mjk0YzAsMCwwLjEwNzIsMy44OCwxLjM5MzEsNi4yMzc1bC0yLjAzNiw0LjE1NTEiLz4KICAgIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTE4LjIwMjYsMjAuMjQ1M2MwLDAsMC44NTczLTQuMTI1Nyw3LjU1NDgtMi40NjQ3YzAsMCw2LjAwMSwwLjQ4MjIsNy45ODM1LTUuMTQzN3MtMi4xNzg4LTcuNjk4LTIuMTc4OC03LjY5OCIvPgogICAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMzcuODQ5OCw4LjE1NDdjMCwwLDIuODYyMSwxLjkzNDIsMC4yOTA0LDQuODY1MS0yLjUwMTMsMi44NTA2LTQuODQ4NywyLjAyMjYtNC44NDg3LDIuMDIyNiIvPgogICAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMjcuODQ3LDEwLjY1NDRjMCwwLTEuMzE1OSwxLjcxMSwwLjEzMDcsNC4xODAyYzAsMCwwLjYzNzYsMS42MTcxLTAuNjU3NSwyLjg3MDkiLz4KICAgIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTIwLjUwNjUsMTcuNzA1NWMwLDAtMS45Mjg5LTIuMzg5NiwwLjY5NjUtNS4wMTUiLz4KICAgIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTM2LjI0LDQ4LjkyMzZjNC43NTMsMC41MTA3LDguODg2MSwwLjUyODgsMTEuNjI0Mi0wLjU2MTgiLz4KICA8L2c+Cjwvc3ZnPgo=');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            opacity: 0.05;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Überschriften stilisieren und sicherstellen, dass sie über dem Hintergrund liegen */
+        h1, h2 {
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4em;
+        }
+
+        /* Halbtransparente Karten für die Formulare */
+        .form-section {
+            margin-bottom: 1.5em;
+            padding: 1em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section label {
+            display: block;
+            margin-top: 0.5em;
+        }
+
+        .form-section select,
+        .form-section input {
+            width: 100%;
+            padding: 0.5em;
+            margin-top: 0.2em;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fdfdfd;
+        }
+
+        .form-section input::placeholder {
+            color: #e0e0e0;
+        }
+
+        button {
+            margin-top: 1em;
+            padding: 0.6em 1.2em;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #6a462f;
+            color: #fff;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #845632;
+        }
+
+        #bestand {
+            margin-top: 2em;
+            position: relative;
+            z-index: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5em;
+            text-align: left;
+            color: #fff;
+        }
+
+        th {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<h1>
+    🐗 Wildfleisch Warenbestand 🦌
+</h1>
+
+<div class="form-section">
+    <h2>Einlagerung</h2>
+    <label for="wildart_e">Wildart</label>
+    <select id="wildart_e">
+        <option value="Schwarzwild">Schwarzwild</option>
+        <option value="Rehwild">Rehwild</option>
+        <option value="Damwild">Damwild</option>
+    </select>
+
+    <label for="teil_e">Teilstück</label>
+    <select id="teil_e">
+        <option value="Nacken">Nacken</option>
+        <option value="Hackfleisch">Hackfleisch</option>
+        <option value="Gulasch">Gulasch</option>
+        <option value="Keule">Keule</option>
+        <option value="Blatt">Blatt</option>
+    </select>
+
+    <label for="menge_e">Menge (z. B. 1.5)</label>
+    <input type="number" step="0.01" id="menge_e">
+
+    <label for="einheit_e">Einheit</label>
+    <select id="einheit_e">
+        <option value="kg">kg</option>
+        <option value="Portionen">Portionen</option>
+    </select>
+
+    <label for="lagerort_e">Lagerort</label>
+    <input type="text" id="lagerort_e" placeholder="z. B. TK1">
+
+    <label for="datum_e">Datum</label>
+    <input type="date" id="datum_e">
+
+    <button id="btn_e">Einlagern</button>
+</div>
+
+<div class="form-section">
+    <h2>Entnahme</h2>
+    <label for="wildart_a">Wildart</label>
+    <select id="wildart_a">
+        <option value="Schwarzwild">Schwarzwild</option>
+        <option value="Rehwild">Rehwild</option>
+        <option value="Damwild">Damwild</option>
+    </select>
+
+    <label for="teil_a">Teilstück</label>
+    <select id="teil_a">
+        <option value="Nacken">Nacken</option>
+        <option value="Hackfleisch">Hackfleisch</option>
+        <option value="Gulasch">Gulasch</option>
+        <option value="Keule">Keule</option>
+        <option value="Blatt">Blatt</option>
+    </select>
+
+    <label for="menge_a">Menge (z. B. 1.5)</label>
+    <input type="number" step="0.01" id="menge_a">
+
+    <label for="einheit_a">Einheit</label>
+    <select id="einheit_a">
+        <option value="kg">kg</option>
+        <option value="Portionen">Portionen</option>
+    </select>
+
+    <label for="lagerort_a">Lagerort</label>
+    <input type="text" id="lagerort_a" placeholder="z. B. TK1">
+
+    <label for="datum_a">Datum</label>
+    <input type="date" id="datum_a">
+
+    <label for="verwendung_a">Verwendungszweck</label>
+    <input type="text" id="verwendung_a" placeholder="z. B. Eigenbedarf">
+
+    <button id="btn_a">Entnahme</button>
+</div>
+
+<div id="bestand">
+    <h2>Bestand</h2>
+    <table id="bestand_table">
+        <thead>
+        <tr>
+            <th>Wildart</th>
+            <th>Teilstück</th>
+            <th>Menge</th>
+            <th>Einheit</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+const supabaseUrl = 'https://jdeostlfpeckgsljzwzi.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkZW9zdGxmcGVja2dzbGp6d3ppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTg3NzAsImV4cCI6MjA2OTg5NDc3MH0.DnmdWAVz6vUkk_DZluz8h7jiPhLotl6RdydWFsPh0QM';
+// Initialisiere Supabase‑Client. Die globale Variable „supabase“ wird durch das
+// CDN bereitgestellt. Hier wird nur die Funktion createClient aus ihr
+// de-strukturiert, um Verwechslungen mit dem Namespace zu vermeiden.
+const { createClient } = supabase;
+const db = createClient(supabaseUrl, supabaseAnonKey);
+
+// Set today's date by default
+document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('datum_e').value = today;
+    document.getElementById('datum_a').value = today;
+    loadStock();
+});
+
+// Einlagerung speichern
+document.getElementById('btn_e').addEventListener('click', async () => {
+    const wildart = document.getElementById('wildart_e').value;
+    const teil = document.getElementById('teil_e').value;
+    const menge = parseFloat(document.getElementById('menge_e').value);
+    const einheit = document.getElementById('einheit_e').value;
+    const lagerort = document.getElementById('lagerort_e').value;
+    const datum = document.getElementById('datum_e').value;
+    if (!menge || menge <= 0) {
+        alert('Bitte eine gültige Menge eingeben.');
+        return;
+    }
+    const { error } = await db.from('bestandsdaten').insert({
+        wildart: wildart,
+        teil: teil,
+        menge: menge,
+        einheit: einheit,
+        typ: 'Einlagerung',
+        datum: datum,
+        lagerort: lagerort
+    });
+    if (error) {
+        alert('Fehler bei der Einlagerung: ' + error.message);
+    } else {
+        alert('Einlagerung gespeichert.');
+        document.getElementById('menge_e').value = '';
+        loadStock();
+    }
+});
+
+// Entnahme speichern
+document.getElementById('btn_a').addEventListener('click', async () => {
+    const wildart = document.getElementById('wildart_a').value;
+    const teil = document.getElementById('teil_a').value;
+    const menge = parseFloat(document.getElementById('menge_a').value);
+    const einheit = document.getElementById('einheit_a').value;
+    const lagerort = document.getElementById('lagerort_a').value;
+    const datum = document.getElementById('datum_a').value;
+    const verwendung = document.getElementById('verwendung_a').value;
+    if (!menge || menge <= 0) {
+        alert('Bitte eine gültige Menge eingeben.');
+        return;
+    }
+    const { error } = await db.from('bestandsdaten').insert({
+        wildart: wildart,
+        teil: teil,
+        menge: menge,
+        einheit: einheit,
+        typ: 'Entnahme',
+        datum: datum,
+        lagerort: lagerort,
+        verwendungszweck: verwendung
+    });
+    if (error) {
+        alert('Fehler bei der Entnahme: ' + error.message);
+    } else {
+        alert('Entnahme gespeichert.');
+        document.getElementById('menge_a').value = '';
+        document.getElementById('verwendung_a').value = '';
+        loadStock();
+    }
+});
+
+// Bestand laden und anzeigen
+async function loadStock() {
+    const { data, error } = await db.from('bestandsdaten').select('*');
+    if (error) {
+        console.error('Fehler beim Laden der Daten:', error);
+        return;
+    }
+    // Summen berechnen
+    const totals = {};
+    data.forEach(item => {
+        const key = item.wildart + '_' + item.teil;
+        if (!totals[key]) {
+            totals[key] = { wildart: item.wildart, teil: item.teil, menge: 0, einheit: item.einheit };
+        }
+        if (item.typ === 'Einlagerung') {
+            totals[key].menge += item.menge;
+        } else if (item.typ === 'Entnahme') {
+            totals[key].menge -= item.menge;
+        }
+    });
+    // Tabelle aktualisieren
+    const tbody = document.querySelector('#bestand_table tbody');
+    tbody.innerHTML = '';
+    Object.values(totals).forEach(item => {
+        if (item.menge > 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + item.wildart + '</td>' +
+                '<td>' + item.teil + '</td>' +
+                '<td>' + item.menge.toFixed(2) + '</td>' +
+                '<td>' + item.einheit + '</td>';
+            tbody.appendChild(tr);
+        }
+    });
+}
+</script>
+
+</body>
+</html>
